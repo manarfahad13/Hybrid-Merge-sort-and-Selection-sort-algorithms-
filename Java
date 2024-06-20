@@ -1,0 +1,191 @@
+import java.util.Arrays;
+import java.util.Scanner;
+
+public class SortingApp {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        // Generate the array once outside the loop
+        int[] arr = generateArray(scanner);
+
+        while (true) {
+            // Get user input for sorting algorithm choice
+            System.out.println("Choose sorting algorithm:");
+            System.out.println("1. Merge Sort");
+            System.out.println("2. Selection Sort");
+            System.out.println("3. Hybrid Sort");
+            System.out.println("4. Generate New Array");
+            System.out.println("5. Exit");
+
+            System.out.print("Enter your choice (1, 2, 3, 4 to generate new array, or 5 to exit): ");
+            int choice = scanner.nextInt();
+
+            switch (choice) {
+                case 1:
+                    runAndPrintResult(arr.clone(), "Merge Sort");
+                    break;
+                case 2:
+                    runAndPrintResult(arr.clone(), "Selection Sort");
+                    break;
+                case 3:
+                    // Get user input for threshold
+                    System.out.print("Enter the threshold value for Hybrid Sort: ");
+                    int threshold = scanner.nextInt();
+                    runAndPrintResult(arr.clone(), "Hybrid Sort with Threshold " + threshold);
+                    break;
+                case 4:
+                    // Generate a new array
+                    arr = generateArray(scanner);
+                    System.out.println("New array generated.");
+                    break;
+                case 5:
+                    System.out.println("Exiting the program.");
+                    return; // Exit the program
+                default:
+                    System.out.println("Invalid choice. Please choose again.");
+            }
+        }
+   
+    }
+
+    private static void runAndPrintResult(int[] arr, String algorithm) {
+        // Record the start time
+        long startTime = System.nanoTime();
+
+        // Perform the sorting algorithm
+        switch (algorithm) {
+            case "Merge Sort":
+                mergeSort(arr);
+                break;
+            case "Selection Sort":
+                selectionSort(arr);
+                break;
+            case "Hybrid Sort with Threshold ":
+                // The threshold is already set during method call
+                hybridSort(arr, Integer.parseInt(algorithm.substring(algorithm.lastIndexOf(" ") + 1)));
+                break;
+        }
+
+        // Record the end time
+        long endTime = System.nanoTime();
+
+        // Calculate and print the running time in microseconds
+        long elapsedTime = (endTime - startTime) / 1000;
+        System.out.println("Running time for " + algorithm + ": " + elapsedTime + " microseconds");
+
+        // Print the sorted array
+        System.out.println("Sorted Array: " + Arrays.toString(arr));
+    }
+
+    private static int[] generateArray(Scanner scanner) {
+        // Get user input for array length
+        System.out.print("Enter the length of the array: ");
+        int n = scanner.nextInt();
+
+        // Get user input for array order
+        System.out.println("Choose array order:");
+        System.out.println("1. Ascending");
+        System.out.println("2. Descending");
+        System.out.println("3. Random");
+
+        System.out.print("Enter your choice (1, 2, or 3): ");
+        int orderChoice = scanner.nextInt();
+
+        return generateArray(n, orderChoice);
+    }
+
+    private static int[] generateArray(int n, int orderChoice) {
+        int[] arr = new int[n];
+
+        switch (orderChoice) {
+            case 1:
+                for (int i = 0; i < n; i++) {
+                    arr[i] = i;
+                }
+                break;
+            case 2:
+                for (int i = 0; i < n; i++) {
+                    arr[i] = n - i - 1;
+                }
+                break;
+            case 3:
+                for (int i = 0; i < n; i++) {
+                    arr[i] = (int) (Math.random() * 1000);
+                }
+                break;
+            default:
+                System.out.println("Invalid choice for array order. Using random order.");
+                for (int i = 0; i < n; i++) {
+                    arr[i] = (int) (Math.random() * 1000);
+                }
+        }
+
+        return arr;
+    }
+
+    // Merge sort function
+    public static void mergeSort(int[] arr) {
+        if (arr.length > 1) {
+            int mid = arr.length / 2;
+            int[] left = Arrays.copyOfRange(arr, 0, mid);
+            int[] right = Arrays.copyOfRange(arr, mid, arr.length);
+
+            mergeSort(left);
+            mergeSort(right);
+
+            merge(arr, left, right);
+        }
+    }
+
+    // Merge function for merge sort
+    private static void merge(int[] arr, int[] left, int[] right) {
+        int i = 0, j = 0, k = 0;
+
+        while (i < left.length && j < right.length) {
+            if (left[i] < right[j]) {
+                arr[k++] = left[i++];
+            } else {
+                arr[k++] = right[j++];
+            }
+        }
+
+        while (i < left.length) {
+            arr[k++] = left[i++];
+        }
+
+        while (j < right.length) {
+            arr[k++] = right[j++];
+        }
+    }
+
+    // Selection sort function
+    public static void selectionSort(int[] arr) {
+        for (int i = 0; i < arr.length - 1; i++) {
+            int minIndex = i;
+            for (int j = i + 1; j < arr.length; j++) {
+                if (arr[j] < arr[minIndex]) {
+                    minIndex = j;
+                }
+            }
+            int temp = arr[i];
+            arr[i] = arr[minIndex];
+            arr[minIndex] = temp;
+        }
+    }
+
+    // Hybrid sort function
+    public static void hybridSort(int[] arr, int threshold) {
+        if (arr.length <= threshold) {
+            selectionSort(arr);
+        } else {
+            int mid = arr.length / 2;
+            int[] left = Arrays.copyOfRange(arr, 0, mid);
+            int[] right = Arrays.copyOfRange(arr, mid, arr.length);
+
+            hybridSort(left, threshold);
+            mergeSort(right);
+
+            merge(arr, left, right);
+        }
+    }
+}
